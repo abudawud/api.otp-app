@@ -7,11 +7,14 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     //
-    public function response($content, $encrypted = false, $key = null, $counter = null)
+    public static $key;
+    public static $keyHelper;
+
+    public function response($content, $encrypted = false)
     {
         if ($encrypted) {
             // START TO ENCRYPT DATA
-            if ($key == '' || $counter == null) {
+            if ($this::$key == '' || $this::$keyHelper == null) {
                 return response(['message' => 'Secret key or counter not set!'], 500);
             }
 
@@ -21,7 +24,7 @@ class Controller extends BaseController
                 return response(['message' => 'Failed to encode JSON!'], 500);
             }
 
-            $encData = $this->encrypt($content, $key, $counter);
+            $encData = $this->encrypt($content, $this::$key, $this::$keyHelper);
 
             if ($encData == false) {
                 return response(['message' => 'Encrypt data failed!'], 500);
@@ -31,6 +34,10 @@ class Controller extends BaseController
         }
 
         return response($content);
+    }
+
+    public function test(){
+        return "ts";
     }
 
     private function encrypt($plainText, $secretKey, $counter)

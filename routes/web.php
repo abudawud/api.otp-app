@@ -17,3 +17,4 @@ $router->get('/', function () use ($router) {
 
 $router->post('/login', 'LoginController@index');
 $router->post('/login/logout', 'LoginController@logout');
+$router->get('/nilai', 'NilaiController@index');
