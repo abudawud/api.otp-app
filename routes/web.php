@@ -17,4 +17,12 @@ $router->get('/', function () use ($router) {
 
 $router->post('/login', 'LoginController@index');
 $router->post('/login/logout', 'LoginController@logout');
+
 $router->get('/nilai', 'NilaiController@index');
+$router->post('/nilai', 'NilaiController@store');
+$router->delete('/nilai/{id}', 'NilaiController@delete');
+$router->patch('/nilai/{id}', 'NilaiController@update');
+$router->get('/nilai/{id}', 'NilaiController@get');
+
+$router->get('/jadwal', 'JadwalController@index');
+$router->get('/jadwal/{id}', 'JadwalController@get');

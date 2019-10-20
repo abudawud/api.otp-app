@@ -41,7 +41,7 @@ class AuthMiddleware
             $factor = (int)($timeForce / 2);
             $keyHelper = ((int)(time() / $keyLife)) + $factor;
             
-            if($request->method() != 'GET'){
+            if($request->method() == 'POST' || $request->method() == 'PATCH'){
                 $rawData = false;
                 while($timeForce-- > 0){
                     $rawData = $this->decrypt($encData, $key, --$keyHelper);
@@ -62,8 +62,13 @@ class AuthMiddleware
                 $request->merge(['json' => $jsonData]);
             }
 
-            Controller::$key = $key;
-            Controller::$keyHelper = $keyHelper;
+            $mdata = array(
+                'key' => $key,
+                'keyHelper' => $keyHelper,
+                'nip' => $nip,
+            );
+
+            Controller::$loginData = $mdata;
         }
 
         return $next($request);

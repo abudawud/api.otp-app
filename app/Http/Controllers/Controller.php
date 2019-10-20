@@ -7,14 +7,18 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     //
-    public static $key;
-    public static $keyHelper;
+    public static $loginData = array();
 
     public function response($content, $encrypted = false)
     {
-        if ($encrypted) {
+        $key = Controller::$loginData['key'];
+
+        $keyLife = env('OTP_KEY_LIFE');
+        $keyHelper = ((int)(time() / $keyLife));
+
+        if ($encrypted && env('APP_ENCRYPT')) {
             // START TO ENCRYPT DATA
-            if ($this::$key == '' || $this::$keyHelper == null) {
+            if ($key == '' || $keyHelper == null) {
                 return response(['message' => 'Secret key or counter not set!'], 500);
             }
 
@@ -24,13 +28,20 @@ class Controller extends BaseController
                 return response(['message' => 'Failed to encode JSON!'], 500);
             }
 
-            $encData = $this->encrypt($content, $this::$key, $this::$keyHelper);
+            $encData = $this->encrypt($content, $key, $keyHelper);
 
-            if ($encData == false) {
+            if ($encData[1] == false) {
                 return response(['message' => 'Encrypt data failed!'], 500);
             }
 
-            $content = $encData;
+            if(env('OTP_KEY_DEBUG')){
+                $content = array(
+                    'key' => $encData[0],
+                    'data' => $encData[1]
+                );
+            }else{
+                $content = ['data' => $encData[1]];
+            }
         }
 
         return response($content);
@@ -46,6 +57,6 @@ class Controller extends BaseController
 
         $ciphertext = openssl_encrypt($plainText, env('OTP_CIPHER'), $key);
 
-        return $ciphertext;
+        return array($key, $ciphertext);
     }
 }
