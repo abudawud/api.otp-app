@@ -1,4 +1,24 @@
-# Lumen PHP Framework
+# OTP Flow
+
+* Generate random main key with sha1 format
+* Store main key in both web service and android
+* Login:
+  * Encrypt data login with main key and otp with hmac
+  * Send encrypted data login to web service
+  * web service decrypt data with main key and otp scan
+  * if login success, then response with token and enckey for next encryption
+  * Save enckey in both web service and android
+
+* Done
+
+## Feature
+
+* Debug Option
+  * Cleartext request and response json
+  * Encrypted request and response with key field
+  * All data including operation response encrypted and secured
+
+## Lumen PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
 [![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)

@@ -13,6 +13,8 @@
 
 $app = require __DIR__.'/../bootstrap/app.php';
 
+error_reporting(~E_WARNING);
+
 /*
 |--------------------------------------------------------------------------
 | Run The Application

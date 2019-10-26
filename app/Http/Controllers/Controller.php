@@ -3,21 +3,26 @@
 namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
+use Illuminate\Http\Request;
 
 class Controller extends BaseController
 {
     //
-    public static $loginData = array();
+    public static $loginData = array(); 
 
-    public function response($content, $encrypted = false)
+    public static function Response($content, $privateKey = true, $status = 200, $encrypted = true)
     {
-        $key = Controller::$loginData['key'];
-
         $keyLife = env('OTP_KEY_LIFE');
         $keyHelper = ((int)(time() / $keyLife));
 
-        if ($encrypted && env('APP_ENCRYPT')) {
+        if (env('APP_ENCRYPT_RESPONSE') && $encrypted) {
             // START TO ENCRYPT DATA
+            if($privateKey){
+                $key = Controller::$loginData['key'];
+            }else{
+                $key = env('APP_MAIN_KEY');
+            }
+
             if ($key == '' || $keyHelper == null) {
                 return response(['message' => 'Secret key or counter not set!'], 500);
             }
@@ -28,7 +33,7 @@ class Controller extends BaseController
                 return response(['message' => 'Failed to encode JSON!'], 500);
             }
 
-            $encData = $this->encrypt($content, $key, $keyHelper);
+            $encData = Controller::encrypt($content, $key, $keyHelper);
 
             if ($encData[1] == false) {
                 return response(['message' => 'Encrypt data failed!'], 500);
@@ -44,14 +49,15 @@ class Controller extends BaseController
             }
         }
 
-        return response($content);
+        $msg = array(
+            'encrypted' => env('APP_ENCRYPT_RESPONSE') && $encrypted,
+            'payload' => $content
+        );
+
+        return response($msg, $status);
     }
 
-    public function test(){
-        return "ts";
-    }
-
-    private function encrypt($plainText, $secretKey, $counter)
+    private static function encrypt($plainText, $secretKey, $counter)
     {
         $key = hash_hmac('sha256', $counter, $secretKey);
 

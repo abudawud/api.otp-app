@@ -8,37 +8,35 @@ use Illuminate\Support\Arr;
 
 class LoginController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
 
     public function index(Request $request){
+        $json = $request->input('json');
         $data = ModelLogin::where([
-                ['nip', $request->input('nip')],
-                ['pwd', $request->input('pwd')]
+                ['nip', Arr::get($json, 'nip', 0)],
+                ['pwd', Arr::get($json, 'pwd', 'N/A')]
             ])
                 ->get();
 
         if(count($data)){
             $mdata = $data[0];
             $token = md5(time());
+            $enckey = sha1(rand(0, time()));
             $chaceData = array(
                 'token' => $token,
-                'key' => $mdata->enckey
+                'key' => $enckey
             );
+
+            ModelLogin::where('nip', Arr::get($json, 'nip', 0))
+                        ->update(['enckey' => $enckey]);
+
             Cache::put($mdata->nip, $chaceData);
             
-            unset($mdata->pwd, $mdata->enckey);
+            unset($mdata->pwd);
             $mdata->token = $token;
-            return response ($mdata);
+            $mdata->enckey = $enckey;
+            return $this->response($mdata, false, 200);
         }else{
-            return response(array('message' => "invalid username/password!"), 401);
+            return $this->response('message', false, 401);
         }
     }
 
@@ -46,9 +44,9 @@ class LoginController extends Controller
         $data = $request->input('json');
         $token = Cache::pull(Arr::get($data, 'nip', 0));
         if($token == null){
-            return response(array('message' => 'Something went wrong'), 500);
+            return $this->response(array('message' => 'Something went wrong'), 500);
         }else{
-            return response(array('message' => 'You are ready loged out!'));
+            return $this->response(array('message' => 'You are ready loged out!'), false);
         }
     }
 }

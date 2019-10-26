@@ -9,15 +9,15 @@ class JadwalController extends Controller
         $nip = Controller::$loginData['nip'];
 
         $data = ViewJadwalDosen::where('nip', $nip)->get();
-        return $this->response($data, true);
+        return $this->Response($data);
     }
 
     public function get($id){
         $data = ViewJadwalDosen::where('id_jam', $id)->get();
         if(count($data)){
-            return $this->response($data[0], true);
+            return $this->response($data[0]);
         }else{
-            return response(['message' => 'Data jadwal tidak ditemukan'], 404);
+            return $this->Response(['message' => 'Data jadwal tidak ditemukan'], true, 404);
         }
     }
 }
