@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class Controller extends BaseController
 {
@@ -23,6 +24,8 @@ class Controller extends BaseController
                 $key = env('APP_MAIN_KEY');
             }
 
+            Log::info(bin2hex($key));
+
             if ($key == '' || $keyHelper == null) {
                 return response(['message' => 'Secret key or counter not set!'], 500);
             }
@@ -41,7 +44,7 @@ class Controller extends BaseController
 
             if(env('OTP_KEY_DEBUG')){
                 $content = array(
-                    'key' => $encData[0],
+                    'key' => bin2hex($encData[0]),
                     'data' => $encData[1]
                 );
             }else{
@@ -59,9 +62,10 @@ class Controller extends BaseController
 
     private static function encrypt($plainText, $secretKey, $counter)
     {
-        $key = hash_hmac('sha256', $counter, $secretKey);
+        $iv = hex2bin(env('APP_IV_INIT'));
+        $key = hash_hmac('md5', $counter, hex2bin($secretKey), true);
 
-        $ciphertext = openssl_encrypt($plainText, env('OTP_CIPHER'), $key);
+        $ciphertext = openssl_encrypt($plainText, env('OTP_CIPHER'), $key, 0, $iv);
 
         return array($key, $ciphertext);
     }

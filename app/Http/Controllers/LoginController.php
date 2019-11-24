@@ -20,7 +20,7 @@ class LoginController extends Controller
         if(count($data)){
             $mdata = $data[0];
             $token = md5(time());
-            $enckey = sha1(rand(0, time()));
+            $enckey = md5(rand(0, time()));
             $chaceData = array(
                 'token' => $token,
                 'key' => $enckey
@@ -36,7 +36,7 @@ class LoginController extends Controller
             $mdata->enckey = $enckey;
             return $this->response($mdata, false, 200);
         }else{
-            return $this->response('message', false, 401);
+            return $this->response(['message' => "Invalid Username/Password"], false, 401);
         }
     }
 
@@ -44,7 +44,7 @@ class LoginController extends Controller
         $data = $request->input('json');
         $token = Cache::pull(Arr::get($data, 'nip', 0));
         if($token == null){
-            return $this->response(array('message' => 'Something went wrong'), 500);
+            return $this->response(array('message' => 'Something went wrong'), false, 500);
         }else{
             return $this->response(array('message' => 'You are ready loged out!'), false);
         }
