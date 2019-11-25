@@ -18,6 +18,10 @@ $router->get('/', function () use ($router) {
 $router->post('/login', 'LoginController@index');
 $router->post('/login/logout', 'LoginController@logout');
 
+$router->get('/kelas', 'KelasController@index');
+$router->get('/kelas/{id}/nilai', 'KelasController@nilaiKelas');
+
+// DEPRECATED
 $router->get('/nilai', 'NilaiController@index');
 $router->post('/nilai', 'NilaiController@store');
 $router->delete('/nilai/{id}', 'NilaiController@delete');
